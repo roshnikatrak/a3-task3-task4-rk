@@ -1,0 +1,81 @@
+---
+title: "Naples Reef (Jan 2010) Purple Urchins"
+author: "Roshni Katrak-Adefowora"
+date: "11/4/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+library(kableExtra)
+library(here)
+library(janitor)
+```
+
+## Read in the urchins data
+```{r, message = FALSE, warning = FALSE}
+urchins <- read_csv(here("data", "urchins.csv")) #read in data
+
+urchins_clean <- urchins %>% 
+  clean_names() #convert to lowercase snake case
+```
+
+## Filter to only include purple urchins at NAPL in January 2010
+```{r, message = FALSE, warning = FALSE}
+purple_urchins <- urchins_clean %>% 
+  mutate(date = mdy(date)) %>% #convert date to class "Date"
+  mutate(year = year(date)) %>%  #add column for year
+  mutate(month = month(date)) %>% #add column for month
+    filter(common_name == "Purple Urchin", site == "NAPL", month == "1", year == "2010") #purple urchins at NAPL in January 2010
+```
+
+## Exploratory histogram and QQ plots
+```{r, message = FALSE, warning = FALSE}
+#Faceted histogram
+ggplot(data=purple_urchins, aes(x=size))+
+  geom_histogram(bins=4)+ #4 bins
+  facet_wrap(~treatment)+ #separate graphs for annual and control treatments
+  labs(x="Urchin diameter (cm)", y="Frequency") #update x-axis and y-axis
+
+#QQ-plot
+ggplot(data=purple_urchins, aes(sample=size))+
+  geom_qq()+
+  facet_wrap(~treatment) #separate graphs for annual and control treatments
+```
+
+The data under both annual and control treatments appear to be somewhat normally distributed in the histogram (bell-shaped), and the qq-plot shows a mostly linear relationship which also indicates normality.
+
+## Table of summary statistics
+```{r, message = FALSE, warning = FALSE}
+purple_size <- purple_urchins %>% 
+  group_by(treatment) %>% #group annuals together and controls together
+  summarize(mean_size_cm = mean(size, na.rm = TRUE), #add mean column
+            sd = sd(size, na.rm = TRUE), #add standard deviation column
+            sample_size = n()) #add sample size column
+
+#use kableExtra for better presentation
+purple_size %>% 
+  kable(col.names = c("Treatment",
+                      "Mean size (cm)",
+                      "Standard deviation",
+                      "Sample size (n)")) %>% 
+  kable_styling(full_width = FALSE)
+```
+
+## Two-sample t-test
+```{r, message = FALSE, warning = FALSE}
+#Create vectors containing observations for each treatment
+annual <- purple_urchins %>% 
+  filter(treatment == "ANNUAL") %>% 
+  pull(size) #turn dataframe into vector
+
+control <- purple_urchins %>% 
+  filter(treatment == "CONTROL") %>% 
+  pull(size) #turn dataframe into vector
+
+#Two-sample t-test
+t.test(annual, control)
+```
+
