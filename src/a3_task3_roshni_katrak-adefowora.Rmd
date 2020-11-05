@@ -58,6 +58,12 @@ kable(col.names = c("Common Name",
                       "Standard deviation",
                       "Sample size (n)")) %>% 
   kable_styling(full_width = FALSE)
+
+#actual mean difference
+6.776489-4.469797
+
+#percent mean difference
+(6.776489-4.469797)/((6.776489+4.469797)/2) * 100
 ```
 
 Based on the graphs and summary table, red urchins on average are larger than purple urchins (2.31cm larger, 41.0 percent difference). The purple urchin has a smaller standard deviation, which indicates that the spread of values stays closer to the mean, whereas in the red urchin the data is more spread out (this can be seen in the histograms as well).
@@ -86,6 +92,7 @@ purple_sum <- purple_urchins %>%
 
 ggplot(data=purple_sum, aes(x=year, y=n))+
   geom_col(aes(fill=site_full))+
+  facet_wrap(~site_full)+
   labs(x="Year",
        y="Total number of purple urchins",
        fill="Site Name")+
