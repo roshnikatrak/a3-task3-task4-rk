@@ -79,3 +79,4 @@ control <- purple_urchins %>%
 t.test(annual, control)
 ```
 
+The mean difference between the annual (mean=3.916667cm) and control (mean=3.725807cm) samples is 0.190. The difference in standard deviation was approximately 0.1, indicating the spread of the data was similar for both samples. The p-value from the two-sample t-test was 0.2536, which means that if the null hypothesis is true that these samples were drawn from populations with the same mean, then there is a 25% chance that populations at least this different could have been found by random chance.
